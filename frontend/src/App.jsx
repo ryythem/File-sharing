@@ -20,7 +20,8 @@ function App() {
 
         try {
           const response = await axios.post(`${API_URL}/upload`, data);
-          setResult(response.path);
+          console.log(response);
+          setResult(response.data.path);
         } catch (e) {
           console.log("Error : ", e.message);
         }
@@ -40,6 +41,7 @@ function App() {
           ref={inputFileRef}
           onChange={(e) => setFile(e.target.files[0])}
         />
+        <br />
         <a href={result} target="_blank">
           {result}
         </a>
