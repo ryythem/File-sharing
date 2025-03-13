@@ -4,9 +4,11 @@ import "./App.css";
 
 function App() {
   const inputFileRef = useRef();
-  const [file, setFile] = useState("");
-  const [result, setResult] = useState([]);
+  const [file, setFile] = useState(null);
+  const [result, setResult] = useState("");
+  const [error, setError] = useState("");
   const API_URL = "http://localhost:3000";
+
   const uploadFile = () => {
     inputFileRef.current.click();
   };
@@ -14,6 +16,15 @@ function App() {
   useEffect(() => {
     async function getImage() {
       if (file) {
+        if (file.size > 10 * 1024 * 1024) {
+          setError("File size exceeded. Max 10MB allowed.");
+          setResult(null);
+          setFile(null); 
+          return;
+        }
+
+        setError(""); 
+
         const data = new FormData();
         data.append("name", file.name);
         data.append("file", file);
@@ -23,7 +34,8 @@ function App() {
           console.log(response);
           setResult(response.data.path);
         } catch (e) {
-          console.log("Error : ", e.message);
+          setError("Error uploading file");
+          console.log("Error:", e.message);
         }
       }
     }
@@ -32,7 +44,7 @@ function App() {
   return (
     <>
       <div>
-        <h1>Share files hassel free</h1>
+        <h1>Share files hassle-free</h1>
         <p>Upload the file and share the link</p>
         <button onClick={uploadFile}>Upload</button>
         <input
@@ -41,10 +53,13 @@ function App() {
           ref={inputFileRef}
           onChange={(e) => setFile(e.target.files[0])}
         />
+        {error && <p style={{ color: "red" }}>{error}</p>}
         <br />
-        <a href={result} target="_blank">
-          {result}
-        </a>
+        {result && (
+          <a href={result} target="_blank" rel="noopener noreferrer">
+            {result}
+          </a>
+        )}
       </div>
     </>
   );
