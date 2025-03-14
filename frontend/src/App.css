@@ -1,0 +1,69 @@
+body {
+  font-family: "Courier New", monospace;
+  text-align: center;
+  background-color: #121212;
+  color: #ffffff;
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+h1 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+p {
+  font-size: 1.1rem;
+  margin-bottom: 20px;
+  color: #bbbbbb;
+}
+
+.res{
+  color: white;
+}
+
+button {
+  background-color: #4D55CC;
+  color: #ffffff;
+  font-size: 1rem;
+  padding: 10px 30px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+button:hover {
+  background-color: #4D55CC;
+}
+
+a {
+  display: block;
+  margin-top: 15px;
+  color: #1db954;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+
+input[type="file"] {
+  display: none;
+}
+
+.error {
+  color: #ff4d4d;
+  font-weight: bold;
+}
+
+.loading {
+  color: #ffcc00;
+  font-weight: bold;
+}
+
+.note{
+  padding: 20px;
+}

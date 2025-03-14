@@ -8,6 +8,7 @@ function App() {
   const [result, setResult] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [countdown, setCountdown] = useState(0);
   const API_URL = "https://file-sharing-yono.onrender.com";
 
   const uploadFile = () => {
@@ -21,6 +22,9 @@ function App() {
           setError("File size exceeds 10 mb");
           setFile(null);
           setResult("");
+          setTimeout(() => {
+            setError("");
+          }, 60000);
           return;
         }
         const data = new FormData();
@@ -44,11 +48,33 @@ function App() {
     getImage();
   }, [file]);
 
+  useEffect(() => {
+    if (result) {
+      setCountdown(60);
+
+      const timer = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev === 1) {
+            clearInterval(timer);
+            setResult("");
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      return () => clearInterval(timer);
+    }
+  }, [result]);
+
   return (
     <>
       <div>
         <h1>Share files hassle-free</h1>
-        <p>Upload the file and share the link</p>
+        <p>
+          Upload the file and share the link <br />
+          <i style={{ color: "white" }}>(Max file size: 10mb)</i>
+        </p>
         <button onClick={uploadFile}>Upload</button>
         <input
           type="file"
@@ -59,14 +85,32 @@ function App() {
         {error && <p style={{ color: "red" }}>{error}</p>}
         <br />
         {loading ? (
-          <p>Uploading</p>
+          <p>Uploading... (Sit back and chill)</p>
         ) : (
           result && (
-            <a href={result} target="_blank" rel="noopener noreferrer">
-              {result}
-            </a>
+            <div>
+              {" "}
+              <a
+                href={result}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ padding: "20px" }}
+              >
+                <i>
+                  <span className="res">Share this link : </span>
+                </i>
+                {result}
+              </a>
+              <p style={{ color: "red" }}>Expires in: {countdown}s</p>
+            </div>
           )
         )}
+        <p className="note">
+          <i>
+            <span style={{ color: "white" }}>Note:</span> The uploaded file will
+            be automatically deleted after 1 minute
+          </i>
+        </p>
       </div>
     </>
   );
