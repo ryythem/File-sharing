@@ -1,11 +1,11 @@
 const express = require("express");
 const multer = require("multer");
-const bucket = require("../firebase"); 
+const bucket = require("../firebase");
 const { v4: uuidv4 } = require("uuid");
 const axios = require("axios");
 
 const router = express.Router();
-const upload = multer({ storage: multer.memoryStorage() }); 
+const upload = multer({ storage: multer.memoryStorage() });
 
 router.post("/upload", upload.single("file"), async (req, res) => {
   if (!req.file) {
@@ -25,7 +25,7 @@ router.post("/upload", upload.single("file"), async (req, res) => {
       },
     });
 
-    stream.on("error", (err) => 
+    stream.on("error", (err) =>
       res.status(500).json({ message: "Upload error", error: err })
     );
 
@@ -62,6 +62,12 @@ router.post("/upload", upload.single("file"), async (req, res) => {
   } catch (e) {
     res.status(500).json({ message: "Error uploading file", error: e });
   }
+});
+
+router.get("health", (req, res) => {
+  res.json({
+    message: "endopoint healthy",
+  });
 });
 
 module.exports = router;
