@@ -9,6 +9,7 @@ function App() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [countdown, setCountdown] = useState(0);
+  const [copied, setCopied] = useState(false);
   const API_URL = "https://file-sharing-yono.onrender.com";
 
   const uploadFile = () => {
@@ -67,6 +68,14 @@ function App() {
     }
   }, [result]);
 
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(result);
+    setCopied(true);
+    setTimeout(() => {
+      setCopied(false);
+    }, 2000);
+  };
+
   return (
     <>
       <div>
@@ -89,22 +98,30 @@ function App() {
         ) : (
           result && (
             <div>
-              {" "}
-              <a
-                href={result}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ padding: "20px" }}
-              >
-                <i>
-                  <span className="res">Share this link : </span>
-                </i>
-                {result}
-              </a>
+              <p className="res">
+                <i>Share this link:</i>
+              </p>
+              <p>
+                <a href={result} target="_blank" rel="noopener noreferrer">
+                  {result}
+                </a>
+                <span
+                  onClick={copyToClipboard}
+                  style={{ cursor: "pointer", marginLeft: "10px"}}
+                >
+                  📋(copy)
+                </span>
+                {copied && (
+                  <span style={{ color: "green", marginLeft: "10px" }}>
+                    Copied!
+                  </span>
+                )}
+              </p>
               <p style={{ color: "red" }}>Expires in: {countdown}s</p>
             </div>
           )
         )}
+
         <p className="note">
           <i>
             <span style={{ color: "white" }}>Note:</span> The uploaded file will
