@@ -8,7 +8,7 @@ function App() {
   const [result, setResult] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const API_URL = "http://localhost:3000";
+  const API_URL = "https://file-sharing-yono.onrender.com";
 
   const uploadFile = () => {
     inputFileRef.current.click();
@@ -20,7 +20,7 @@ function App() {
         if (file.size > 10 * 1024 * 1024) {
           setError("File size exceeds 10 mb");
           setFile(null);
-          setResult(null);
+          setResult("");
           return;
         }
         const data = new FormData();

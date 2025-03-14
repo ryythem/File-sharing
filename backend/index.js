@@ -8,7 +8,9 @@ const MONGO_URL = process.env.MONGO_URL;
 const PORT = process.env.PORT || 3000;
 
 const app = express();
-app.use(cors());
+
+app.use(cors({ origin: "*", methods: "GET,POST" }));
+
 
 
 app.use('/',router);
