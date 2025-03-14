@@ -49,7 +49,7 @@ router.post("/upload", upload.single("file"), async (req, res) => {
           } catch (error) {
             console.error(`Error deleting ${fileName}:`, error);
           }
-        }, 60000); // 1-minute deletion
+        }, 60000); 
       } catch (tinyError) {
         console.log("TinyURL Error: ", tinyError);
         res

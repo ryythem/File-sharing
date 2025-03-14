@@ -10,14 +10,6 @@ const PORT = process.env.PORT || 3000;
 const app = express();
 app.use(cors());
 
-mongoose
-  .connect(MONGO_URL)
-  .then(() => {
-    console.log("Database connected successfully");
-  })
-  .catch((e) => {
-    console.log("Error connecting to database");
-  });
 
 app.use('/',router);
 
