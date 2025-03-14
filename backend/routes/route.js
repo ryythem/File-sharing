@@ -64,7 +64,7 @@ router.post("/upload", upload.single("file"), async (req, res) => {
   }
 });
 
-router.get("health", (req, res) => {
+router.get("/health", (req, res) => {
   res.json({
     message: "endopoint healthy",
   });
