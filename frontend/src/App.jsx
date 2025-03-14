@@ -7,6 +7,7 @@ function App() {
   const [file, setFile] = useState(null);
   const [result, setResult] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const API_URL = "http://localhost:3000";
 
   const uploadFile = () => {
@@ -17,30 +18,32 @@ function App() {
     async function getImage() {
       if (file) {
         if (file.size > 10 * 1024 * 1024) {
-          setError("File size exceeded. Max 10MB allowed.");
+          setError("File size exceeds 10 mb");
+          setFile(null);
           setResult(null);
-          setFile(null); 
           return;
         }
-
-        setError(""); 
-
         const data = new FormData();
-        data.append("name", file.name);
         data.append("file", file);
-
+        setError("");
+        setLoading(true);
         try {
           const response = await axios.post(`${API_URL}/upload`, data);
-          console.log(response);
           setResult(response.data.path);
+          setTimeout(() => {
+            setResult("");
+          }, 60000);
         } catch (e) {
-          setError("Error uploading file");
-          console.log("Error:", e.message);
+          console.log("Error: ", e.message);
+          setError("Error uploading... Try again");
+        } finally {
+          setLoading(false);
         }
       }
     }
     getImage();
   }, [file]);
+
   return (
     <>
       <div>
@@ -55,10 +58,14 @@ function App() {
         />
         {error && <p style={{ color: "red" }}>{error}</p>}
         <br />
-        {result && (
-          <a href={result} target="_blank" rel="noopener noreferrer">
-            {result}
-          </a>
+        {loading ? (
+          <p>Uploading</p>
+        ) : (
+          result && (
+            <a href={result} target="_blank" rel="noopener noreferrer">
+              {result}
+            </a>
+          )
         )}
       </div>
     </>

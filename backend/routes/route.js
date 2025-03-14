@@ -1,9 +1,11 @@
 const express = require("express");
-const upload = require("../utils/upload.js");
-const fs = require("fs");
-const File = require("../db/db.js");
+const multer = require("multer");
+const bucket = require("../firebase"); 
+const { v4: uuidv4 } = require("uuid");
+const axios = require("axios");
 
 const router = express.Router();
+const upload = multer({ storage: multer.memoryStorage() }); 
 
 router.post("/upload", upload.single("file"), async (req, res) => {
   if (!req.file) {
@@ -11,38 +13,54 @@ router.post("/upload", upload.single("file"), async (req, res) => {
       .status(400)
       .json({ message: "No file uploaded or file too large (Max: 10MB)" });
   }
-  const fileObj = {
-    path: req.file.path,
-    name: req.file.originalname,
-  };
+
+  const fileName = `${uuidv4()}_${req.file.originalname}`;
+  const file = bucket.file(fileName);
+
   try {
-    const file = await File.create(fileObj);
-    res.status(200).json({
-      path: `http://localhost:3000/file-sharing/${file._id}`,
+    const stream = file.createWriteStream({
+      metadata: {
+        contentType: req.file.mimetype,
+        contentDisposition: `attachment; filename="${req.file.originalname}"`,
+      },
     });
 
-    setTimeout(async () => {
+    stream.on("error", (err) => 
+      res.status(500).json({ message: "Upload error", error: err })
+    );
+
+    stream.on("finish", async () => {
+      await file.makePublic();
+      const firebaseUrl = `https://firebasestorage.googleapis.com/v0/b/${
+        bucket.name
+      }/o/${encodeURIComponent(fileName)}?alt=media`;
+
       try {
-        await File.findByIdAndDelete(file._id);
-        fs.unlinkSync(file.path);
-        console.log(`File ${file.name} is deleted`);
-      } catch (error) {
-        console.log("Error deleting the file ", error);
-      }
-    }, 60000);
-  } catch (e) {
-    res.status(500).json({
-      message: "error",
-    });
-  }
-});
+        const tinyUrlResponse = await axios.get(
+          `https://tinyurl.com/api-create.php?url=${firebaseUrl}`
+        );
+        const shortUrl = tinyUrlResponse.data;
 
-router.get("/file-sharing/:fileId", async (req, res) => {
-  try {
-    const file = await File.findById(req.params.fileId);
-    res.download(file.path, file.name);
-  } catch {
-    res.json({ message: "Error" });
+        res.status(200).json({ path: shortUrl });
+        setTimeout(async () => {
+          try {
+            await file.delete();
+            console.log(`File ${fileName} deleted from Firebase Storage`);
+          } catch (error) {
+            console.error(`Error deleting ${fileName}:`, error);
+          }
+        }, 60000); // 1-minute deletion
+      } catch (tinyError) {
+        console.log("TinyURL Error: ", tinyError);
+        res
+          .status(500)
+          .json({ message: "Error shortening URL", error: tinyError });
+      }
+    });
+
+    stream.end(req.file.buffer);
+  } catch (e) {
+    res.status(500).json({ message: "Error uploading file", error: e });
   }
 });
 
